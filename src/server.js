@@ -1,7 +1,7 @@
 // src/server.js
 import express from 'express';
 import dotenv from 'dotenv';
-import { getAgent } from './agent.js'; // Assuming ESM syntax (add "type": "module" to package.json)
+import { getAgent, AGENT_DID_ALIAS } from './agent.js'; // Assuming ESM syntax (add "type": "module" to package.json)
 
 dotenv.config();
 
@@ -53,10 +53,10 @@ async function startServer() {
         // --- Start Listening ---
         app.listen(port, () => {
             console.log(`[Server] ClinConNet Cloud Agent listening on port ${port}`);
-            // Log the agent's default DID if available after startup
-            agent?.didManagerGet({ did: agent?.availableMethods()[0] }) // Attempt to get default DID info
-                 .then(id => console.log(`[Server] Agent default DID: ${id?.did}`))
-                 .catch(e => console.warn('[Server] Could not get default agent DID on startup.'));
+            // Log the agent's specific DID using the alias
+            agent?.didManagerGet({ alias: AGENT_DID_ALIAS, provider: 'did:key' }) // Use defined alias constant
+                 .then(id => console.log(`[Server] Agent successfully initialized with DID: ${id?.did}`))
+                 .catch(e => console.warn(`[Server] Could not get agent DID by alias '${AGENT_DID_ALIAS}' on startup: ${e.message}`));
         });
 
     } catch (error) {
