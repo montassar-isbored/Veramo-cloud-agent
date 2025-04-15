@@ -22,6 +22,8 @@
     "@veramo/did-resolver": "^6.0.0",
     "@veramo/key-manager": "^6.0.0",
     "@veramo/kms-local": "^6.0.0",
+    "@veramo/kv-store": "^6.0.0",
+    "@veramo/mediation-manager": "^6.0.0",
     "@veramo/message-handler": "^6.0.0",
     "did-resolver": "^4.1.0",
     "dotenv": "^16.5.0",

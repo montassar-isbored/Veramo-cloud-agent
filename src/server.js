@@ -47,16 +47,19 @@ async function startServer() {
 
         // --- Basic Root Endpoint (Optional) ---
         app.get('/', (req, res) => {
-            res.send('ClinConNet Cloud Agent is running!');
+            res.send('ClinConNet Veramo Cloud Agent is running!');
         });
 
         // --- Start Listening ---
         app.listen(port, () => {
             console.log(`[Server] ClinConNet Cloud Agent listening on port ${port}`);
             // Log the agent's specific DID using the alias
-            agent?.didManagerGet({ alias: AGENT_DID_ALIAS, provider: 'did:key' }) // Use defined alias constant
-                 .then(id => console.log(`[Server] Agent successfully initialized with DID: ${id?.did}`))
-                 .catch(e => console.warn(`[Server] Could not get agent DID by alias '${AGENT_DID_ALIAS}' on startup: ${e.message}`));
+
+        // src/server.js (inside app.listen callback)
+            agent?.didManagerFind({ alias: AGENT_DID_ALIAS, provider: 'did:key' }) // Ensure provider is here too
+            .then(id => console.log(`[Server] Agent successfully initialized with DID: `, JSON.stringify(id[0].did))) // A bit complex but works
+            .catch(e => console.warn(`[Server] Could not get agent DID by alias '${AGENT_DID_ALIAS}' on startup: ${e.message}`));
+                 
         });
 
     } catch (error) {
