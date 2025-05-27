@@ -1,35 +1,47 @@
 // src/server.js
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import { getAgent, AGENT_DID_ALIAS } from './agent.js'; // Assuming ESM syntax (add "type": "module" to package.json)
 
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000; // Use PORT from .env or default to 3000
+const port = process.env.PORT || 3002; // Use PORT from .env or default to 3002
+
+// Configure CORS
+const corsOptions = {
+    origin: 'http://localhost:5173', // Allow requests from organization SPA running vite on port 5173
+    methods: ['POST', 'GET', 'OPTIONS'], // Allow these methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
+  };
+  app.use(cors(corsOptions));
 
 // Middleware to parse raw request body for DIDComm messages
 // DIDComm messages might be plain JSON or JWEs (which are strings)
-app.use(express.raw({ type: '*/*', limit: '5mb' })); // Accept raw body for all types
+app.use(express.text({ type: 'application/didcomm-encrypted+json', limit: '5mb' }));
+
+// If you need to parse other JSON bodies for other routes:
+app.use(express.json({ type: 'application/json' })); 
 
 let agent; // Hold the initialized agent
 
 // Main async function to start the server
 async function startServer() {
     try {
-        console.log('[Server] Initializing Veramo Agent...');
+        console.log('[Server] Initializing Cloud Agent...');
         agent = await getAgent(); // Initialize agent from agent.js
-        console.log('[Server] Veramo Agent Initialized.');
+        console.log('[Server] Cloud Agent Initialized.');
 
         // --- DIDComm Endpoint ---
         app.post('/didcomm', async (req, res) => {
             console.log('[Server] Received POST on /didcomm');
+            console.log('[Server] Request body:', req.body);
             try {
                 if (!agent) {
                     throw new Error("Agent not initialized yet.");
                 }
-                // We expect the raw message body (Buffer)
-                const message = await agent.handleMessage({ raw: req.body });
+                const message = await agent.handleMessage(req.body);
                 console.log("[Server] Message handled by agent. Response message:", message);
 
                 // DIDComm handling might result in a message to be sent back
@@ -47,7 +59,7 @@ async function startServer() {
 
         // --- Basic Root Endpoint (Optional) ---
         app.get('/', (req, res) => {
-            res.send('ClinConNet Veramo Cloud Agent is running!');
+            res.send('ClinConNet Cloud Agent is running!');
         });
 
         // --- Start Listening ---
