@@ -29,6 +29,7 @@
     "did-resolver": "^4.1.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "key-did-resolver": "^4.0.0",
     "sqlite3": "^5.1.7",
     "typeorm": "^0.3.22",
     "web-did-resolver": "^2.0.30"
